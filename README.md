@@ -45,7 +45,7 @@
 
 1. **克隆仓库**
    ```bash
-   git clone https://github.com/你的用户名/meow-rest-reminder.git
+   git clone https://github.com/rany-456/meow-rest-reminder.git
    ```
 2. 打开 Chrome，地址栏输入 `chrome://extensions/`
 3. 右上角打开 **「开发者模式」**
