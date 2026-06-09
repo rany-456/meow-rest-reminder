@@ -5,7 +5,7 @@
 <h1 align="center">本喵命你去休息</h1>
 
 <p align="center">
-  <strong>一只住在浏览器里的猫咪，专门盯着你的工作时长——盯够了就来找你。</strong>
+  <strong>一只住在浏览器里的猫咪，专门盯着你的工作时长，盯够了就来找你。</strong>
 </p>
 
 <p align="center">
