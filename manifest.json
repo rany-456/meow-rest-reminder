@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "喵了个咪 · 休息提醒",
+  "version": "1.0.0",
+  "description": "当你在一个网页停留过久时，一只猫咪会从屏幕边缘走到你面前，提醒你休息一下，并陪你互动。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "alarms"
+  ],
+
+  "background": {
+    "service_worker": "src/background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content.js"],
+      "css": ["src/cat.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/cat/*", "src/cat.css"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "喵了个咪 · 休息提醒"
+  }
+}

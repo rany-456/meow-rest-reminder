@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>本喵命你去休息</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+
+    <header class="head">
+      <div class="logo-wrap">
+        <img class="logo-img" src="../icons/logo.png" alt="猫咪" />
+      </div>
+      <div class="head-text">
+        <h1>本喵命你去休息</h1>
+        <p class="subtitle">本喵随时陪伴你，不要久坐哦，喵～</p>
+      </div>
+    </header>
+
+    <main>
+
+      <div class="card">
+        <div class="row">
+          <span class="label">启用提醒</span>
+          <label class="switch">
+            <input type="checkbox" id="enabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="label">提醒时间</span>
+          <span class="value"><span id="thresholdValue">30</span> 分钟</span>
+        </div>
+        <input type="range" id="threshold" min="1" max="120" step="1" />
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="label">顺延</span>
+          <span class="value"><span id="snoozeValue">5</span> 分钟</span>
+        </div>
+        <input type="range" id="snooze" min="1" max="30" step="1" />
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <span class="label">切走 / 锁屏时暂停计时</span>
+          <label class="switch">
+            <input type="checkbox" id="respectIdle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <span class="status-label">当前页面已停留</span>
+        <span class="status-value"><strong id="activeMinutes">—</strong> 分钟</span>
+      </div>
+
+      <button id="preview" class="preview-btn" type="button">预览猫咪出场效果</button>
+
+    </main>
+
+    <footer class="foot">设置自动保存 · v1.0.0</footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

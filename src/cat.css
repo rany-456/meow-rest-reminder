@@ -1,0 +1,420 @@
+/**
+ * cat.css —— 猫咪「霸占屏幕」出场动画 + 互动 UI
+ *
+ * 视觉主线（Cat Gatekeeper 风格）：
+ *   .stage.walking  → 半透明遮罩淡入，猫咪从屏幕底部中央走出来，一边走一边放大
+ *   .stage.arrived  → 猫咪占据屏幕中下方，气泡弹出
+ *   .stage.leaving  → 猫咪缩小走回底部，遮罩淡出
+ */
+
+/* ====== 全屏遮罩舞台 ====== */
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.4s ease;
+  z-index: 0; /* shadow root 已是最高层，内部不需要额外 z-index */
+}
+
+/* 无遮罩，猫咪直接浮在网页上 */
+.stage.arrived,
+.stage.walking {
+  background: transparent;
+  pointer-events: none;
+}
+
+/* ====== 走进来：从底部中央匀速放大走出 ====== */
+.stage.walking .cat-wrap {
+  animation: cat-walk-in 2.8s linear forwards;
+}
+
+@keyframes cat-walk-in {
+  0% {
+    transform: translateY(30%) scale(0.15);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(22%) scale(0.42);
+  }
+  50% {
+    transform: translateY(12%) scale(0.78);
+  }
+  75% {
+    transform: translateY(4%) scale(1.12);
+  }
+  90% {
+    transform: translateY(1%) scale(1.32);
+  }
+  100% {
+    transform: translateY(0) scale(1.4);
+    opacity: 1;
+  }
+}
+
+/* 走路踱步上下抖动 */
+.stage.walking .cat {
+  animation: cat-bob 0.42s ease-in-out infinite;
+}
+
+@keyframes cat-bob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%       { transform: translateY(-8px) rotate(1deg); }
+}
+
+/* ====== 到位：维持放大后的尺寸 + 轻微呼吸 ====== */
+.stage.arrived .cat-wrap {
+  transform: translateY(0) scale(1.4);
+  opacity: 1;
+}
+
+.stage.arrived .cat {
+  animation: cat-breathe 3s ease-in-out infinite;
+}
+
+@keyframes cat-breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.015); }
+}
+
+/* ====== 离场：只让猫咪缩回底部，stage 整体不变 ====== */
+.cat-wrap.walking-out {
+  animation: cat-walk-out 1.4s ease-in forwards;
+}
+
+/* 兼容旧 leaving 状态 */
+.stage.leaving .cat-wrap {
+  animation: cat-walk-out 1.4s ease-in forwards;
+}
+
+@keyframes cat-walk-out {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(40%) scale(0.2); opacity: 0; }
+}
+
+@keyframes overlay-out {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ====== 猫咪外层包装（负责出场动画的 transform）====== */
+.cat-wrap {
+  position: relative;
+  /* 基础尺寸：走进来后会再被 scale(1.4) 放大到最终大小，最终展示约 840px */
+  width:  clamp(300px, 55vw, 600px);
+  height: clamp(200px, 36vh, 400px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform: translateY(30%) scale(0.15); /* 与 cat-walk-in 第 0 帧一致，避免起跳卡顿 */
+  opacity: 0;
+  flex-shrink: 0;
+  margin: 0 auto;
+  align-self: center;
+  margin-bottom: clamp(80px, 14vh, 160px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ====== 猫咪按钮（可点击，负责呼吸/抖动动画）====== */
+.cat {
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: grab;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+}
+
+.cat:active {
+  cursor: grabbing;
+}
+
+/* 摸头时的呼噜抖动 */
+.cat.purr {
+  animation: cat-purr 0.22s ease-in-out 4 !important;
+}
+
+@keyframes cat-purr {
+  0%, 100% { transform: rotate(0); }
+  25%       { transform: rotate(-3deg); }
+  75%       { transform: rotate(3deg); }
+}
+
+/* ====== 猫咪图片 ====== */
+.cat-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* "摸摸我"提示：白色磨砂质感 */
+.paw-hint {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+  color: #2a2a2a;
+  font-size: 11px;
+  font-weight: 400;
+  padding: 4px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.cat:hover .paw-hint {
+  opacity: 1;
+}
+
+/* ====== 对话气泡（磨砂玻璃）====== */
+.bubble {
+  position: absolute;
+  bottom: clamp(320px, 52vh, 540px);
+  left: 50%;
+  transform: translateX(-50%) translateY(16px) scale(0.96);
+  width: clamp(260px, 40vw, 380px);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-radius: 28px;
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  padding: 22px 24px;
+  box-shadow:
+    0 4px 24px rgba(220, 120, 160, 0.18),
+    0 1px 4px rgba(0, 0, 0, 0.06),
+    inset 0 1.5px 0 rgba(255, 255, 255, 1);
+  pointer-events: auto;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.2);
+  text-align: center;
+}
+
+.bubble.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* 尾巴已移除，气泡悬浮在猫咪上方不需要指向箭头 */
+.bubble::after {
+  display: none;
+}
+
+.bubble-text {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #2a2a2a;
+  font-weight: 500;
+  text-shadow: none;
+}
+
+/* 告别气泡复用同一风格 */
+.bubble.pixel {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  image-rendering: auto;
+}
+
+.bubble.pixel::after {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.bubble.pixel .bubble-text {
+  color: #2a2a2a;
+  font-family: inherit;
+  letter-spacing: normal;
+}
+
+.actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.actions .btn {
+  flex: 1;
+}
+
+.btn {
+  pointer-events: auto;
+  cursor: pointer;
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.12s ease, filter 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-primary {
+  background: #1a1a1a;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+}
+
+.btn-primary:hover {
+  background: #333;
+}
+
+.btn-ghost {
+  background: rgba(0, 0, 0, 0.06);
+  color: #444;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ====== 爱心特效 ====== */
+.heart {
+  position: fixed;
+  font-size: 22px;
+  pointer-events: none;
+  z-index: 99999;
+  animation: heart-float 1.2s ease-out forwards;
+}
+
+@keyframes heart-float {
+  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-180px) scale(1.3); opacity: 0; }
+}
+
+/* ====== 纯 CSS 占位猫（无素材时）====== */
+.css-cat {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+}
+
+.css-cat .face {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 144px;
+  background: #5b5b66;
+  border-radius: 50% 50% 46% 46%;
+}
+
+.css-cat .ear {
+  position: absolute;
+  bottom: 104px;
+  width: 0;
+  height: 0;
+  border-left: 28px solid transparent;
+  border-right: 28px solid transparent;
+  border-bottom: 48px solid #5b5b66;
+}
+
+.css-cat .ear-left  { left: 26px;  transform: rotate(-18deg); }
+.css-cat .ear-right { right: 26px; transform: rotate(18deg);  }
+
+.css-cat .eye {
+  position: absolute;
+  top: 54px;
+  width: 22px;
+  height: 28px;
+  background: #2bd6b4;
+  border-radius: 50%;
+  animation: cat-blink 4s infinite;
+}
+
+.css-cat .eye::after {
+  content: '';
+  position: absolute;
+  inset: 6px 7px;
+  background: #111;
+  border-radius: 50%;
+}
+
+.css-cat .eye-left  { left: 40px; }
+.css-cat .eye-right { right: 40px; }
+
+@keyframes cat-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96%           { transform: scaleY(0.08); }
+}
+
+.css-cat .nose {
+  position: absolute;
+  top: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 10px;
+  background: #ff9eb5;
+  border-radius: 50% 50% 60% 60%;
+}
+
+.css-cat .whiskers {
+  position: absolute;
+  top: 92px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 144px;
+  height: 1px;
+}
+
+.css-cat .whiskers::before,
+.css-cat .whiskers::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 48px;
+  height: 1px;
+  background: rgba(255,255,255,0.5);
+}
+
+.css-cat .whiskers::before { left: -8px;  transform: rotate(8deg);  }
+.css-cat .whiskers::after  { right: -8px; transform: rotate(-8deg); }
+
+.css-cat .tail {
+  position: absolute;
+  right: -8px;
+  bottom: 10px;
+  width: 70px;
+  height: 28px;
+  background: #5b5b66;
+  border-radius: 0 50% 50% 0;
+  transform-origin: left center;
+  animation: cat-tail 1.6s ease-in-out infinite;
+}
+
+@keyframes cat-tail {
+  0%, 100% { transform: rotate(-8deg); }
+  50%       { transform: rotate(18deg); }
+}
